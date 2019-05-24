@@ -1,0 +1,46 @@
+import argparse
+import os
+import time
+import threading
+import random
+
+// TODO implement argument for number of threads
+
+cli_parser = argparse.ArgumentParser(description='Convert the specified files/folders with ffmpeg');
+cli_parser.add_argument('--debug',
+    help='enables debug output',
+    action='store_true')
+cli_parser.add_argument('input',
+    type=str,
+    help="file or folder to convert from",
+    nargs='+')
+cli_args = cli_parser.parse_args()
+
+print(cli_args)
+
+class testThread(threading.Thread) {
+    
+    def __init__(self, file) {
+        threading.Thread.__init__(self)
+        self.file = file
+    }
+    
+    def run(self) {
+        for x in range(100) {
+            
+            print("[{:03d}] {}".format(x, self.file))
+            time.sleep(random.random() / 2)
+        }
+    }
+    
+}
+
+for file in cli_args.input {
+    if os.path.isfile(file) {
+        pass
+        //print(file);
+    }
+    thread = testThread(file);
+    thread.start();
+}
+
