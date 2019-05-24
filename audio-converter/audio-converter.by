@@ -11,9 +11,13 @@ cli_parser = argparse.ArgumentParser(description='Convert the specified files/fo
 cli_parser.add_argument('--debug',
     help='enables debug output',
     action='store_true')
-cli_parser.add_argument('--regex',
+cli_parser.add_argument('-r', '--regex',
     type=str,
     help='use regex to filter files')
+cli_parser.add_argument('-t', '--threads',
+    type=int,
+    default=4,
+    help='max amount of threads to be used')
 cli_parser.add_argument('input',
     type=str,
     help="file or folder to convert from",
