@@ -32,17 +32,17 @@ print(cli_args)
 
 class testThread(threading.Thread) {
     
-    def __init__(self, file) {
+    def __init__(self, name) {
         threading.Thread.__init__(self)
-        self.file = file
+        self.name = name
     }
     
     def run(self) {
         for x in range(100) {
-            
-            print("[{:03d}] {}".format(x, self.file))
-            time.sleep(random.random() / 2)
+            time.sleep(random.random() / 10)
+            print("[{}] {}".format(self.name, x))
         }
+        print("[{}] FINISHED".format(self.name))
     }
     
 }
@@ -66,7 +66,26 @@ for path in cli_args.input {
     else {
         print("{} not found".format(path))
     }
-    //thread = testThread(file);
-    //thread.start();
+
+    max_threads = cli_args.threads
+    thread_array = []
+
+    for i in range(20) {
+        while len(thread_array) >= max_threads {
+            for t in thread_array {
+                if not t.is_alive() {
+                    thread_array.remove(t)
+                }
+                else {
+                    time.sleep(0.5)
+                }
+            }
+        }
+        thread = testThread("thread {}".format(i));
+        thread_array.append(thread);
+        thread.start();
+        
+    }
+    
 }
 
