@@ -17,7 +17,11 @@ cli_parser.add_argument('-r', '--regex',
 cli_parser.add_argument('-t', '--threads',
     type=int,
     default=4,
-    help='max amount of threads to be used')
+    help='max amount of threads to be used (default is 4)')
+cli_parser.add_argument('-f', '--format',
+    type=str,
+    default="mp3",
+    help='select output format (default is mp3)')
 cli_parser.add_argument('input',
     type=str,
     help="file or folder to convert from",
@@ -51,12 +55,10 @@ for path in cli_args.input {
         print("{} is a directory. walking...".format(path))
         for root, dirs, files in os.walk(path) {
             for file in files {
-                file_str = os.path.join(root, file)
-                if cli_args.regex is None {
-                    print("  {}".format(file_str))
-                }
-                else if re.search(cli_args.regex, file_str){
-                    print("  {}".format(file_str))
+                infile = os.path.join(root, file)
+                outfile = re.sub(r"\.\w+$", ".{}".format(cli_args.format), infile)
+                if cli_args.regex is None or re.search(cli_args.regex, infile){
+                    print("  {} -> {}".format(infile, outfile))
                 }
             }
         }
