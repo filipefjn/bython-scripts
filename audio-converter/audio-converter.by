@@ -3,6 +3,7 @@ import os
 import time
 import threading
 import random
+import re
 
 // TODO implement argument for number of threads
 
@@ -10,6 +11,9 @@ cli_parser = argparse.ArgumentParser(description='Convert the specified files/fo
 cli_parser.add_argument('--debug',
     help='enables debug output',
     action='store_true')
+cli_parser.add_argument('--regex',
+    type=str,
+    help='use regex to filter files')
 cli_parser.add_argument('input',
     type=str,
     help="file or folder to convert from",
@@ -35,12 +39,25 @@ class testThread(threading.Thread) {
     
 }
 
-for file in cli_args.input {
-    if os.path.isfile(file) {
-        pass
-        //print(file);
+for path in cli_args.input {
+    if os.path.isfile(path) {
+        print("{} is a file.".format(path))
     }
-    thread = testThread(file);
-    thread.start();
+    else if os.path.isdir(path) {
+        print("{} is a directory. walking...".format(path))
+        for root, dirs, files in os.walk(path) {
+            for file in files {
+                file_str = os.path.join(root, file)
+                if re.search(cli_args.regex, file_str){
+                    print("  {}".format(file_str))
+                }
+            }
+        }
+    }
+    else {
+        print("{} not found".format(path))
+    }
+    //thread = testThread(file);
+    //thread.start();
 }
 
