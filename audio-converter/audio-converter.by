@@ -48,7 +48,10 @@ for path in cli_args.input {
         for root, dirs, files in os.walk(path) {
             for file in files {
                 file_str = os.path.join(root, file)
-                if re.search(cli_args.regex, file_str){
+                if cli_args.regex is None {
+                    print("  {}".format(file_str))
+                }
+                else if re.search(cli_args.regex, file_str){
                     print("  {}".format(file_str))
                 }
             }
