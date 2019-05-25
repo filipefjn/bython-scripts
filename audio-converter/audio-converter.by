@@ -170,7 +170,7 @@ for path in cli_args.input {
                     }
 
                     // start thread
-                    thread = ffmpegThread(thread_counter, " -i \"{}\" -codec:a libmp3lame -q:a 2 -loglevel error -y \"{}\"".format(infile, outfile))
+                    thread = ffmpegThread(thread_counter, " -i \"{}\" -map 0 -c copy -c:a libmp3lame -q:a 2 -loglevel error -y \"{}\"".format(infile, outfile))
                     thread_counter = thread_counter + 1
                     thread_array.append(thread);
                     thread.start()
