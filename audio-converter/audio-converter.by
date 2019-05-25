@@ -4,6 +4,7 @@ import time
 import threading
 import random
 import re
+import subprocess
 
 // TODO implement argument for number of threads
 
@@ -22,6 +23,10 @@ cli_parser.add_argument('-f', '--format',
     type=str,
     default="mp3",
     help='select output format (default is mp3)')
+cli_parser.add_argument('-o', '--output',
+    type=str,
+    default="./_output",
+    help='select output folder (default is ./_output)')
 cli_parser.add_argument('input',
     type=str,
     help="file or folder to convert from",
@@ -47,7 +52,28 @@ class testThread(threading.Thread) {
     
 }
 
+class ffmpegThread(threading.Thread) {
+    def __init__(self, number, ffmpeg_options) {
+        threading.Thread.__init__(self)
+        self.number = number
+        self.ffmpeg_options = ffmpeg_options
+    }
+    def run(self) {
+        print("[thread {:03d}] started".format(self.number))
+        //print(subprocess.run(["ffmpeg", self.ffmpeg_options], capture_output=True).stderr)
+        ffmpeg_command = "ffmpeg {}".format(self.ffmpeg_options)
+        print("[thread {:03d}] command: {}".format(self.number, ffmpeg_command))
+        result = subprocess.run(ffmpeg_command, capture_output=True)
+        //print(result.stderr)
+        print("[thread {:03d}] finished".format(self.number))
+    }
+}
+
 for path in cli_args.input {
+    prefix = cli_args.output
+    if len(cli_args.output) > 0 and cli_args.output[-1] != "/" {
+        prefix = prefix + "/"
+    }
     if os.path.isfile(path) {
         print("{} is a file.".format(path))
     }
@@ -55,10 +81,33 @@ for path in cli_args.input {
         print("{} is a directory. walking...".format(path))
         for root, dirs, files in os.walk(path) {
             for file in files {
-                infile = os.path.join(root, file)
+                //infile = os.path.join(root, file)
+                if root[-1] == "/" {
+                    infile = root + file
+                }
+                else {
+                    infile = root + "/" + file
+                }
+                
                 outfile = re.sub(r"\.\w+$", ".{}".format(cli_args.format), infile)
                 if cli_args.regex is None or re.search(cli_args.regex, infile){
+                    outfile = prefix + outfile
+
+                    //infile = re.sub(r" ", "\\ ", infile)
+                    //outfile = re.sub(r" ", "\\ ", outfile)
                     print("  {} -> {}".format(infile, outfile))
+                    print("ROOT: {}\nFILE: {}".format(root, file))
+                    
+                    try {
+                        os.makedirs(prefix + root)
+                        print("folder {} created".format(prefix + root))
+                    }
+                    except FileExistsError {
+                        print("folder already exists")
+                    }
+                    thread = ffmpegThread(0, " -i \"{}\" -codec:a libmp3lame -q:a 2 -loglevel error \"{}\"".format(infile, outfile))
+                    thread.run()
+                    
                 }
             }
         }
@@ -69,7 +118,7 @@ for path in cli_args.input {
 
     max_threads = cli_args.threads
     thread_array = []
-
+    /*
     for i in range(20) {
         while len(thread_array) >= max_threads {
             for t in thread_array {
@@ -86,6 +135,9 @@ for path in cli_args.input {
         thread.start();
         
     }
+    */
+
+    
     
 }
 
