@@ -53,18 +53,42 @@ class testThread(threading.Thread) {
 }
 
 class ffmpegThread(threading.Thread) {
+
+    lock = threading.Lock()
+
     def __init__(self, number, ffmpeg_options) {
         threading.Thread.__init__(self)
         self.number = number
         self.ffmpeg_options = ffmpeg_options
     }
+
+    def setLock(lock) {
+        self.lock = lock
+    }
+
     def run(self) {
         print("[thread {:03d}] started".format(self.number))
-        //print(subprocess.run(["ffmpeg", self.ffmpeg_options], capture_output=True).stderr)
+
         ffmpeg_command = "ffmpeg {}".format(self.ffmpeg_options)
+
         print("[thread {:03d}] command: {}".format(self.number, ffmpeg_command))
+
+        // starting ffmpeg
         result = subprocess.run(ffmpeg_command, capture_output=True)
-        //print(result.stderr)
+
+        // start lock
+        with self.lock {
+            // output errors, if any
+            if result.stderr or 1 {
+                error_file = open("errors.txt", "a+")
+                error_file.write("\nerror ocurred\n")
+                error_file.write(outfile + "\n")
+                error_file.write(result.stderr.decode('ascii') + "\n")
+                error_file.close()
+            }
+            
+        }
+
         print("[thread {:03d}] finished".format(self.number))
     }
 }
@@ -105,9 +129,8 @@ for path in cli_args.input {
                     except FileExistsError {
                         print("folder already exists")
                     }
-                    thread = ffmpegThread(0, " -i \"{}\" -codec:a libmp3lame -q:a 2 -loglevel error \"{}\"".format(infile, outfile))
+                    thread = ffmpegThread(0, " -i \"{}\" -codec:a libmp3lame -q:a 2 -loglevel error -y \"{}\"".format(infile, outfile))
                     thread.run()
-                    
                 }
             }
         }
@@ -136,8 +159,5 @@ for path in cli_args.input {
         
     }
     */
-
-    
     
 }
-
