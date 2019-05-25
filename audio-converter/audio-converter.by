@@ -14,6 +14,7 @@ cli_parser.add_argument('--debug',
     action='store_true')
 cli_parser.add_argument('-r', '--regex',
     type=str,
+    default="\.(mp3|flac|ogg|m4a|wav|wma|alac)$",
     help='use regex to filter files')
 cli_parser.add_argument('-t', '--threads',
     type=int,
