@@ -16,6 +16,12 @@ cli_parser.add_argument('-r', '--regex',
     type=str,
     default="\.(mp3|flac|ogg|m4a|wav|wma|alac)$",
     help='use regex to filter files')
+// TODO implement regex replace
+/*
+cli_parser.add_argument('-rr', '--regex-replace',
+    type=str,
+    help='use regex to filter files')
+*/
 cli_parser.add_argument('-t', '--threads',
     type=int,
     default=4,
@@ -36,25 +42,6 @@ cli_args = cli_parser.parse_args()
 
 print(cli_args)
 
-class testThread(threading.Thread) {
-    
-    lock = threading.Lock()
-
-    def __init__(self, name) {
-        threading.Thread.__init__(self)
-        self.name = name
-    }
-    
-    def run(self) {
-        for x in range(100) {
-            time.sleep(random.random() / 10)
-            print("[{}] {}".format(self.name, x))
-        }
-        print("[{}] FINISHED".format(self.name))
-    }
-    
-}
-
 class ffmpegThread(threading.Thread) {
 
     lock = threading.Lock()
@@ -65,7 +52,7 @@ class ffmpegThread(threading.Thread) {
         self.ffmpeg_options = ffmpeg_options
     }
 
-    def setLock(lock) {
+    def setLock(self, lock) {
         self.lock = lock
     }
 
@@ -124,17 +111,24 @@ for path in cli_args.input {
 
             // iterate over the files
             for file in files {
+
+                // TODO implement regex replace
+
+                // TODO remove this in favor of regex replace
+                outroot = re.sub(r"\[\D[\w \t]*\]", "[MP3 VBR]", root)
                 
                 // joins path and filename
                 if root[-1] == "/" {
                     infile = root + file
+                    outfile = outroot + file
                 }
                 else {
                     infile = root + "/" + file
+                    outfile = outroot + "/" + file
                 }
                 
                 // changes the output file extension
-                outfile = re.sub(r"\.\w+$", ".{}".format(cli_args.format), infile)
+                outfile = re.sub(r"\.\w+$", ".{}".format(cli_args.format), outfile)
 
                 // if regex was used, look for matches
                 if cli_args.regex is None or re.search(cli_args.regex, infile){
@@ -148,8 +142,8 @@ for path in cli_args.input {
                     
                     // attempt to make necessary directories
                     try {
-                        os.makedirs(prefix + root)
-                        print("folder {} created".format(prefix + root))
+                        os.makedirs(prefix + outroot)
+                        print("folder {} created".format(prefix + outroot))
                     }
                     except FileExistsError {
                         print("folder already exists")
@@ -165,7 +159,7 @@ for path in cli_args.input {
                                 thread_array.remove(t)
                             }
                             else {
-                                time.sleep(0.5)
+                                time.sleep(.01)
                             }
                         }
                     }
