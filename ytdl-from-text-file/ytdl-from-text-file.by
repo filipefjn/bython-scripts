@@ -22,10 +22,11 @@ class ytdlThread(threading.Thread) {
     
     lock = threading.Lock()
 
-    def __init__(self, number, url) {
+    def __init__(self, number, url, directory="./") {
         threading.Thread.__init__(self)
         self.url = url
         self.number = number
+        self.directory = directory
     }
 
     def run(self) {
@@ -36,7 +37,7 @@ class ytdlThread(threading.Thread) {
         print("[T_{:03d}] command: {}".format(self.number, ytdl_command))
 
         // starting ffmpeg
-        result = subprocess.run(ytdl_command, capture_output=True)
+        result = subprocess.run(ytdl_command, capture_output=True, cwd=self.directory)
 
         // acquire lock
         with self.lock {
@@ -64,6 +65,9 @@ thread_array = []
 for path in cli_args.input {
     if os.path.isfile(path) {
 
+        // set default directory
+        directory = "./"
+
         // print the path
         print("\n[SOURCE] \"{}\" is a file.".format(path))
         try {
@@ -81,7 +85,7 @@ for path in cli_args.input {
 
             // skip comment lines ('#')
             if re.search(r"^[ \t]*\#", line) {
-                print("[SKIP] skipping comment: {}".format(line))
+                print("[SKIP] skipping comment: {}".format(re.sub("\n", "", line)))
                 continue
             }
 
@@ -92,6 +96,42 @@ for path in cli_args.input {
             }
 
             // TODO check for repeated lines
+
+            
+
+            // Check for commands (":DIR=")
+            if re.search(r"^[ \t]*:", line) {
+                print("[CMD] {}".format(line))
+                result = re.search(r"^[ \t]*:[ \t]*[Dd][Ii][Rr][ \t]*=[ \t]*(.*?)[ \t]*$", line)
+                if result {
+                    chosen_dir = result.group(1)
+                    if re.search(r"^\w", chosen_dir) {
+                        chosen_dir = "./" + chosen_dir
+                    }
+                    if chosen_dir[-1] != "/" {
+                        chosen_dir = chosen_dir + "/"
+                    }
+                    print("[CMD] change directory: {}".format(chosen_dir))
+
+                    // create directory
+                    try {
+                        os.makedirs(chosen_dir)
+                        print("[DIR] created: {}".format(chosen_dir))
+                        directory = chosen_dir
+                    } except FileExistsError {
+                        print("[DIR]")
+                        print("[DIR] already exists: {}".format(chosen_dir))
+                        directory = chosen_dir
+                    } except Exception as e{
+                        print("[FAIL] unable to create directory {}".format(chosen_dir))
+                        print(e)
+                    }
+                    continue
+                } else {
+                    print("[CMD] Invalid command: {}".format(line))
+                    continue
+                }
+            }
 
             // check for amount of threads
             if(len(thread_array) >= max_threads) {
@@ -111,7 +151,7 @@ for path in cli_args.input {
             }
 
             // start thread
-            thread = ytdlThread(thread_counter, line)
+            thread = ytdlThread(thread_counter, line, directory)
             thread_counter = thread_counter + 1
             thread_array.append(thread);
             thread.start()
