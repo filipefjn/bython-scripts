@@ -1,0 +1,121 @@
+import threading
+import time
+import argparse
+import subprocess
+import os
+import re
+
+cli_parser = argparse.ArgumentParser(description='Reads a file and downloads the links contained int with youtube-dl');
+cli_parser.add_argument('-t', '--threads',
+    type=int,
+    default=4,
+    help='max amount of threads to be used (default is 4)')
+cli_parser.add_argument('input',
+    type=str,
+    help="text file with the links",
+    nargs='+')
+cli_args = cli_parser.parse_args()
+
+print(cli_args)
+
+class ytdlThread(threading.Thread) {
+    
+    lock = threading.Lock()
+
+    def __init__(self, number, url) {
+        threading.Thread.__init__(self)
+        self.url = url
+        self.number = number
+    }
+
+    def run(self) {
+        print("[T_{:03d}] started".format(self.number))
+
+        ytdl_command = "youtube-dl {}".format(self.url)
+
+        print("[T_{:03d}] command: {}".format(self.number, ytdl_command))
+
+        // starting ffmpeg
+        result = subprocess.run(ytdl_command, capture_output=True)
+
+        // acquire lock
+        with self.lock {
+            // output errors, if any
+            if result.stderr {
+                error_file = open("errors.txt", "a+")
+                error_file.write("\nerror ocurred\n")
+                error_file.write(self.url + "\n")
+                error_file.write(result.stderr.decode('ascii') + "\n")
+                error_file.close()
+            }
+            
+        }
+
+        print("[T_{:03d}] finished".format(self.number))
+    }
+}
+
+// thread control variables
+max_threads = cli_args.threads
+thread_counter = 0
+thread_array = []
+
+// iterate over the sources
+for path in cli_args.input {
+    if os.path.isfile(path) {
+
+        // print the path
+        print("\n[SOURCE] \"{}\" is a file.".format(path))
+        try {
+            infile = open(path, "r")
+        }
+        except Exception as e {
+            print("[FAIL] failed to open file {}".format(path))
+            print(e)
+            continue
+        }
+        
+        for line in infile {
+
+            // TODO detect and put files in directories
+
+            // skip comment lines ('#')
+            if re.search(r"^[ \t]*\#", line) {
+                print("[SKIP] skipping comment: {}".format(line))
+                continue
+            }
+
+            // skip empty lines
+            if re.search(r"^[ \t]*$", line) {
+                print("[SKIP] skipping empty line")
+                continue
+            }
+
+            // TODO check for repeated lines
+
+            // check for amount of threads
+            if(len(thread_array) >= max_threads) {
+                print("[T_CTRL]WAITING FOR THREADS (MAX = {})".format(max_threads))
+            }
+
+            // wait for other threads if necessary
+            while len(thread_array) >= max_threads {
+                for t in thread_array {
+                    if not t.is_alive() {
+                        thread_array.remove(t)
+                    }
+                    else {
+                        time.sleep(.01)
+                    }
+                }
+            }
+
+            // start thread
+            thread = ytdlThread(thread_counter, line)
+            thread_counter = thread_counter + 1
+            thread_array.append(thread);
+            thread.start()
+        }
+    }
+}
+
