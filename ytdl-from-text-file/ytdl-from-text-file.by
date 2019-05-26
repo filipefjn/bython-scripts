@@ -5,6 +5,9 @@ import subprocess
 import os
 import re
 
+// TODO argument for disabling change of directories
+// TODO argument for skipping repeated URLs
+
 cli_parser = argparse.ArgumentParser(description='Reads a file and downloads the links contained int with youtube-dl');
 cli_parser.add_argument('-t', '--threads',
     type=int,
@@ -30,9 +33,9 @@ class ytdlThread(threading.Thread) {
     }
 
     def run(self) {
-        print("[T_{:03d}] started".format(self.number))
+        print("[T_{:03d}] started.".format(self.number))
 
-        ytdl_command = "youtube-dl {}".format(self.url)
+        ytdl_command = "youtube-dl {}".format(re.sub("\n", "", self.url))
 
         print("[T_{:03d}] command: {}".format(self.number, ytdl_command))
 
@@ -49,10 +52,10 @@ class ytdlThread(threading.Thread) {
                 error_file.write(result.stderr.decode('ascii') + "\n")
                 error_file.close()
             }
-            
         }
 
-        print("[T_{:03d}] finished".format(self.number))
+        // TODO detect if finished with errors
+        print("[T_{:03d}] finished.".format(self.number))
     }
 }
 
@@ -81,8 +84,6 @@ for path in cli_args.input {
         
         for line in infile {
 
-            // TODO detect and put files in directories
-
             // skip comment lines ('#')
             if re.search(r"^[ \t]*\#", line) {
                 print("[SKIP] skipping comment: {}".format(re.sub("\n", "", line)))
@@ -95,13 +96,9 @@ for path in cli_args.input {
                 continue
             }
 
-            // TODO check for repeated lines
-
-            
-
             // Check for commands (":DIR=")
             if re.search(r"^[ \t]*:", line) {
-                print("[CMD] {}".format(line))
+                print("[CMD] found command: {}".format(re.sub("\n", "", line)))
                 result = re.search(r"^[ \t]*:[ \t]*[Dd][Ii][Rr][ \t]*=[ \t]*(.*?)[ \t]*$", line)
                 if result {
                     chosen_dir = result.group(1)
@@ -122,20 +119,20 @@ for path in cli_args.input {
                         print("[DIR]")
                         print("[DIR] already exists: {}".format(chosen_dir))
                         directory = chosen_dir
-                    } except Exception as e{
+                    } except Exception as e {
                         print("[FAIL] unable to create directory {}".format(chosen_dir))
                         print(e)
                     }
                     continue
                 } else {
-                    print("[CMD] Invalid command: {}".format(line))
+                    print("[CMD] Invalid command: {}".format(re.sub("\n", "", line)))
                     continue
                 }
             }
 
             // check for amount of threads
             if(len(thread_array) >= max_threads) {
-                print("[T_CTRL]WAITING FOR THREADS (MAX = {})".format(max_threads))
+                print("[T_CTRL] max thread amount reached ({}). waiting.".format(max_threads))
             }
 
             // wait for other threads if necessary
