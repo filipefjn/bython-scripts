@@ -1,0 +1,128 @@
+// this script was made (loosely) following the DR0ID tutorial:
+// https://dr0id.bitbucket.io/legacy/pygame_tutorial01.html
+
+import pygame
+import os
+import time
+
+def main() {
+    pygame.init()
+
+    // setting window title and logo
+    logo = pygame.image.load("logo32x32.png")
+    pygame.display.set_icon(logo)
+    pygame.display.set_caption("minimal")
+
+    // starting screen
+    screen_width = 240
+    screen_height = 180
+    screen = pygame.display.set_mode((screen_width, screen_height))
+
+    // loading green-64x64
+    image_green_path = os.path.join("./resources/", "green-64x64.png")
+    image_green = pygame.image.load(image_green_path)
+    //image_green.set_alpha(64)
+
+    // moving the image
+    xpos = 20
+    ypos = 30
+    step_multiplier = 100
+    xstep = 1
+    ystep = 1
+
+    // printing to the screen
+    screen.fill((0,0,180))
+    image_green_rect = screen.blit(image_green, (xpos, ypos))
+    pygame.display.flip()
+
+    move_by_itself = True
+
+    xmovement = 0
+    ymovement = 0
+
+    last_time = time.clock()
+
+    // running main lopp
+    running = True
+    while running {
+        current_time = time.clock()
+        delta_time = current_time - last_time
+        // event
+        for event in pygame.event.get() {
+            if event.type == pygame.QUIT {
+                running = False
+            }
+            if event.type == pygame.KEYUP {
+                if event.key == pygame.K_LEFT {
+                    if xmovement == -1 {
+                        xmovement = 0
+                    }
+                }
+                if event.key == pygame.K_RIGHT {
+                    if xmovement == 1 {
+                        xmovement = 0
+                    }
+                }
+                if event.key == pygame.K_UP {
+                    if ymovement == -1 {
+                        ymovement = 0
+                    }
+                }
+                if event.key == pygame.K_DOWN {
+                    if ymovement == 1 {
+                        ymovement = 0
+                    }
+                }
+            }
+            if event.type == pygame.KEYDOWN {
+                if event.key == pygame.K_LEFT {
+                    move_by_itself = False
+                    xmovement = -1
+                }
+                if event.key == pygame.K_RIGHT {
+                    move_by_itself = False
+                    xmovement = 1
+                }
+                if event.key == pygame.K_UP {
+                    move_by_itself = False
+                    ymovement = -1
+                }
+                if event.key == pygame.K_DOWN {
+                    move_by_itself = False
+                    ymovement = 1
+                }
+            }
+        }
+
+        // logic
+        if move_by_itself {
+            if xpos >= screen_width-64 or xpos <= 0 {
+                xstep = -xstep
+            }
+            if ypos >= screen_height-64 or ypos <= 0 {
+                ystep = -ystep
+            }
+            xpos += xstep * step_multiplier * delta_time
+            ypos += ystep * step_multiplier * delta_time
+        } else {
+            xpos += xmovement * step_multiplier * delta_time
+            ypos += ymovement * step_multiplier * delta_time
+        }
+        
+        
+        // draw
+        screen.fill((0,0,180))
+        image_green_rect = screen.blit(image_green, (xpos,ypos))
+        //pygame.display.update([image_green_rect])
+        pygame.display.flip()
+
+        // wait
+        // time.sleep(1)
+
+        last_time = current_time
+    }
+}
+
+if __name__ == "__main__" {
+    main()
+}
