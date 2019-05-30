@@ -1,0 +1,67 @@
+// this script was made (loosely) following the ZetCode tutorial:
+// http://zetcode.com/gui/pyqt5/firstprograms/
+
+import sys
+from PyQt5.QtWidgets import (QApplication, qApp, QWidget, QToolTip, QPushButton, QMessageBox, QDesktopWidget, QStyleFactory, QMainWindow, QAction)
+from PyQt5.QtGui import (QIcon, QFont)
+
+class Example(QMainWindow) {
+
+    def __init__(self) {
+        super().__init__()
+        self.initUI()
+    }
+
+    def initUI(self) {
+        self.statusBar().showMessage('ready')
+
+        exitAct = QAction(QIcon('./resources/logo32x32.png'), '&Exit', self)
+        exitAct.setShortcut('Ctrl+Q')
+        exitAct.setStatusTip('Exit Application')
+        exitAct.triggered.connect(qApp.quit)
+
+        menubar = self.menuBar()
+        filemenu = menubar.addMenu('&file')
+        filemenu.addAction(exitAct)
+
+        QToolTip.setFont(QFont('Sans Serif', 10))
+        self.setToolTip('This is a QWidget')
+
+        btn = QPushButton('close', self)
+        btn.clicked.connect(self.close)
+        btn.setToolTip('This is a QPushButton')
+        btn.resize(btn.sizeHint())
+        btn.move(50, 50)
+
+        self.setGeometry(200, 200, 300, 300)
+        self.centerWindow()
+        self.setWindowTitle('Example')
+        self.setWindowIcon(QIcon('./resources/logo32x32.png'))
+        self.show()
+    }
+
+    def centerWindow(self) {
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
+    }
+
+    def closeEvent(self, event) {
+        reply = QMessageBox.question(self, 'Message', 'Do you really want to close?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes {
+            event.accept()
+        } else {
+            event.ignore()
+        }
+    }
+}
+
+if __name__ == "__main__" {
+    app = QApplication(sys.argv)
+    //print(app.setStyle("windows"))
+    //print(QStyleFactory.keys())
+    ex = Example()
+    sys.exit(app.exec_())
+}
