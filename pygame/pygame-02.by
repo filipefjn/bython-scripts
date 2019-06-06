@@ -96,11 +96,15 @@ def main() {
 
         // logic
         if move_by_itself {
-            if xpos >= screen_width-64 or xpos <= 0 {
-                xstep = -xstep
+            if xpos >= screen_width-64  {
+                xstep = - abs(xstep)
+            } else if xpos <= 0 {
+                xstep = abs(xstep)
             }
-            if ypos >= screen_height-64 or ypos <= 0 {
-                ystep = -ystep
+            if ypos >= screen_height-64 {
+                ystep = - abs(ystep)
+            } else if ypos <= 0 {
+                ystep = abs(ystep)
             }
             xpos += xstep * step_multiplier * delta_time
             ypos += ystep * step_multiplier * delta_time
