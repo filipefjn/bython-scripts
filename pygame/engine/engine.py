@@ -1,0 +1,31 @@
+import time
+import pygame
+class engine_window:
+    def __init__(self, name = "Engine", **kwargs):
+        # default values
+        self.screen_width = 400
+        self.screen_height = 300
+        self.fill_color = ((255,255,255))
+        for key, item in kwargs.items():
+            setattr(self, key, item)
+            print("hello")
+    def start(self):
+        screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+        self.running_flag = True
+        last_time = time.clock()
+        while self.running_flag:
+            current_time = time.clock()
+            delta_time = current_time - last_time
+            self.events(screen, delta_time)
+            self.logic(screen, delta_time)
+            self.draw(screen, delta_time)
+            last_time = current_time
+    def events(self, screen, delta):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running_flag = False
+    def logic(self, screen, delta):
+        self.fill_color = (self.fill_color[0], (self.fill_color[1] + (80 * delta)) % 255, (self.fill_color[2] + (80 * delta)) % 255 )
+    def draw(self, screen, delta):
+        screen.fill((self.fill_color))
+        pygame.display.flip()
