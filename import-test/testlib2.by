@@ -1,0 +1,7 @@
+
+def factorial_but_adding(n = 4) {
+    if n <= 0 {
+        return 0
+    }
+    return n + factorial_but_adding(n - 1)
+}

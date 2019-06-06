@@ -1,0 +1,17 @@
+
+from testlib2 import factorial_but_adding
+
+def factorial(n = 4) {
+    if n <= 1 {
+        return 1
+    }
+    return n * factorial(n - 1)
+}
+
+def add_factorial(n = 4) {
+    return factorial_but_adding(n)
+}
+
+if __name__ == "__main__" {
+    print("factorial addition of {} is {}".format(n, add_factorial(n)))
+}

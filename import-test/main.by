@@ -1,0 +1,8 @@
+import testlib
+
+n = 6
+
+print("factorial of {} is {}".format(n, testlib.factorial(n)))
+
+print("factorial addition of {} is {}".format(n, testlib.add_factorial(n)))
+
