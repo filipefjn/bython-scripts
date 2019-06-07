@@ -3,7 +3,7 @@ import pygame
 
 class engine_window {
     def __init__(self, name = "Engine", **kwargs) {
-        // default values
+        # default values
 
         self.screen_width = 400
         self.screen_height = 300

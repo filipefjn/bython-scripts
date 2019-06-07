@@ -6,7 +6,7 @@ import random
 import re
 import subprocess
 
-// TODO implement argument for number of threads
+# TODO implement argument for number of threads
 
 cli_parser = argparse.ArgumentParser(description='Convert the specified files/folders with ffmpeg');
 cli_parser.add_argument('--debug',
@@ -16,7 +16,7 @@ cli_parser.add_argument('-r', '--regex',
     type=str,
     default="\.(mp3|flac|ogg|m4a|wav|wma|alac)$",
     help='use regex to filter files')
-// TODO implement regex replace
+# TODO implement regex replace
 /*
 cli_parser.add_argument('-rr', '--regex-replace',
     type=str,
@@ -63,12 +63,12 @@ class ffmpegThread(threading.Thread) {
 
         print("[T{:03d}] command: {}".format(self.number, ffmpeg_command))
 
-        // starting ffmpeg
+        # starting ffmpeg
         result = subprocess.run(ffmpeg_command, capture_output=True)
 
-        // acquire lock
+        # acquire lock
         with self.lock {
-            // output errors, if any
+            # output errors, if any
             if result.stderr {
                 error_file = open("errors.txt", "a+")
                 error_file.write("\nerror ocurred\n")
@@ -83,12 +83,12 @@ class ffmpegThread(threading.Thread) {
     }
 }
 
-// thread control variables
+# thread control variables
 max_threads = cli_args.threads
 thread_counter = 0
 thread_array = []
 
-// iterate over the sources
+# iterate over the sources
 for path in cli_args.input {
     prefix = cli_args.output
     if len(cli_args.output) > 0 and cli_args.output[-1] != "/" {
@@ -96,28 +96,28 @@ for path in cli_args.input {
     }
     if os.path.isfile(path) {
 
-        // print the path
+        # print the path
         print("\nPATH: \"{}\" is a file.".format(path))
 
-        // TODO implement single file
+        # TODO implement single file
     }
     else if os.path.isdir(path) {
 
-        // print the path
+        # print the path
         print("\nPATH: \"{}\" is a directory.".format(path))
 
-        // walk the path
+        # walk the path
         for root, dirs, files in os.walk(path) {
 
-            // iterate over the files
+            # iterate over the files
             for file in files {
 
-                // TODO implement regex replace
+                # TODO implement regex replace
 
-                // TODO remove this in favor of regex replace
+                # TODO remove this in favor of regex replace
                 outroot = re.sub(r"\[\D[\w \t]*\]", "[MP3 VBR]", root)
                 
-                // joins path and filename
+                # joins path and filename
                 if root[-1] == "/" {
                     infile = root + file
                     outfile = outroot + file
@@ -127,20 +127,20 @@ for path in cli_args.input {
                     outfile = outroot + "/" + file
                 }
                 
-                // changes the output file extension
+                # changes the output file extension
                 outfile = re.sub(r"\.\w+$", ".{}".format(cli_args.format), outfile)
 
-                // if regex was used, look for matches
+                # if regex was used, look for matches
                 if cli_args.regex is None or re.search(cli_args.regex, infile){
                     
-                    // append the prefix to the output file
+                    # append the prefix to the output file
                     outfile = prefix + outfile
 
-                    // print out the file to be converted
+                    # print out the file to be converted
                     print("\nSOURCE: {}".format(infile))
                     print("DESTIN: {}".format(outfile))
                     
-                    // attempt to make necessary directories
+                    # attempt to make necessary directories
                     try {
                         os.makedirs(prefix + outroot)
                         print("folder {} created".format(prefix + outroot))
@@ -149,7 +149,7 @@ for path in cli_args.input {
                         print("folder already exists")
                     }
 
-                    // check and wait before starting a new thread
+                    # check and wait before starting a new thread
                     if(len(thread_array) >= max_threads) {
                         print("WAITING FOR THREADS (MAX = {})".format(max_threads))
                     }
@@ -164,7 +164,7 @@ for path in cli_args.input {
                         }
                     }
 
-                    // start thread
+                    # start thread
                     thread = ffmpegThread(thread_counter, " -i \"{}\" -map 0 -c copy -c:a libmp3lame -q:a 2 -loglevel error -y \"{}\"".format(infile, outfile))
                     thread_counter = thread_counter + 1
                     thread_array.append(thread);

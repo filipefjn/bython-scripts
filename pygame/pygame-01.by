@@ -1,5 +1,5 @@
-// this script was made (loosely) following the DR0ID tutorial:
-// https://dr0id.bitbucket.io/legacy/pygame_tutorial01.html
+# this script was made (loosely) following the DR0ID tutorial:
+# https://dr0id.bitbucket.io/legacy/pygame_tutorial01.html
 
 import pygame
 import os
@@ -8,50 +8,50 @@ import time
 def main() {
     pygame.init()
 
-    // setting window title and logo
+    # setting window title and logo
     logo = pygame.image.load("logo32x32.png")
     pygame.display.set_icon(logo)
     pygame.display.set_caption("minimal")
 
-    // starting screen
+    # starting screen
     screen_width = 240
     screen_height = 180
     screen = pygame.display.set_mode((screen_width, screen_height))
 
-    // loading image from file
+    # loading image from file
     image_path = os.path.join("./resources/", "test-200x120.png")
     image = pygame.image.load(image_path)
-    image.set_colorkey((255,36,36)) // used for setting a pixel RGB value as 100% transparent
-    image.set_alpha(128) // used for setting the whole image's alpha
-    // note: in some combinations, set_colorkey and set_alpha may not work together
+    image.set_colorkey((255,36,36)) # used for setting a pixel RGB value as 100% transparent
+    image.set_alpha(128) # used for setting the whole image's alpha
+    # note: in some combinations, set_colorkey and set_alpha may not work together
 
-    // loading green-64x64
+    # loading green-64x64
     image_green_path = os.path.join("./resources/", "green-64x64.png")
     image_green = pygame.image.load(image_green_path)
-    //image_green.set_alpha(64)
+    #image_green.set_alpha(64)
 
-    // moving the image
+    # moving the image
     xpos = 20
     ypos = 30
     xstep = 1
     ystep = 1
 
-    // printing to the screen
+    # printing to the screen
     screen.fill((0,0,180))
     screen.blit(image, (20,30))
     screen.blit(image_green, (xpos, ypos))
 
-    // running main lopp
+    # running main lopp
     running = True
     while running {
-        // event
+        # event
         for event in pygame.event.get() {
             if event.type == pygame.QUIT {
                 running = False
             }
         }
 
-        // logic
+        # logic
         if xpos >= screen_width-64 or xpos <= 0 {
             xstep = -xstep
         }
@@ -61,12 +61,12 @@ def main() {
         xpos += xstep
         ypos += ystep
         
-        // draw
+        # draw
         screen.fill((0,0,180))
         screen.blit(image_green, (xpos,ypos))
         pygame.display.flip()
 
-        // wait
+        # wait
         time.sleep(0.002)
     }
 }

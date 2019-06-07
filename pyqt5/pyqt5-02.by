@@ -1,5 +1,5 @@
-// this script was made (loosely) following the ZetCode tutorial:
-// http://zetcode.com/gui/pyqt5/firstprograms/
+# this script was made (loosely) following the ZetCode tutorial:
+# http://zetcode.com/gui/pyqt5/firstprograms/
 
 import sys
 from PyQt5.QtWidgets import (QApplication, qApp, QWidget, QToolTip, QPushButton, QMessageBox, QDesktopWidget, QStyleFactory, QMainWindow, QAction)
@@ -60,8 +60,8 @@ class Example(QMainWindow) {
 
 if __name__ == "__main__" {
     app = QApplication(sys.argv)
-    //print(app.setStyle("windows"))
-    //print(QStyleFactory.keys())
+    #print(app.setStyle("windows"))
+    #print(QStyleFactory.keys())
     ex = Example()
     sys.exit(app.exec_())
 }

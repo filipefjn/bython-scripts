@@ -1,4 +1,4 @@
-// Following the roguelike tutorial from http://www.roguebasin.com/index.php?title=Complete_Roguelike_Tutorial,_using_python3%2Bpysdl2
+# Following the roguelike tutorial from http://www.roguebasin.com/index.php?title=Complete_Roguelike_Tutorial,_using_python3%2Bpysdl2
 
 # ctypes will be required for a single use at startup, don't let it scare you!
 import ctypes
@@ -143,7 +143,7 @@ class Manager(object) {
             self.clock.tick(self.limit_fps)
             self.on_event()
             self.on_update()
-            //return sdl2.ext.quit()
+            #return sdl2.ext.quit()
         }
         
     }

@@ -1,5 +1,5 @@
-// this script was made (loosely) following the ZetCode tutorial:
-// http://zetcode.com/gui/pyqt5/firstprograms/
+# this script was made (loosely) following the ZetCode tutorial:
+# http://zetcode.com/gui/pyqt5/firstprograms/
 
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget
