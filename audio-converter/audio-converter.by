@@ -64,7 +64,7 @@ class ffmpegThread(threading.Thread) {
         print("[T{:03d}] command: {}".format(self.number, ffmpeg_command))
 
         # starting ffmpeg
-        result = subprocess.run(ffmpeg_command, capture_output=True)
+        result = subprocess.run(ffmpeg_command, capture_output=True, shell=True)
 
         # acquire lock
         with self.lock {
